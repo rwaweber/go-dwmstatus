@@ -12,6 +12,7 @@ import (
 	"net"
 	"strings"
 	"time"
+	"strconv"
 )
 
 var dpy = C.XOpenDisplay(nil)
@@ -123,7 +124,16 @@ func main() {
 			log.Println(err)
 		}
 		vol := getVolumePerc()
-		s := formatStatus("%s :: %d%% :: %s :: %s :: %d%%", m, vol, l, t, b)
+		status := ""
+		r := strconv.Itoa(b)
+		if b < 20 {
+			// use "warning" color
+			status ="\x03 BAT: " + r
+		} else if b >= 20 {
+			// use "error" color
+			status ="\x02 BAT: " + r
+		}
+		s := formatStatus("%s :: %d%% :: %s :: %s :: %s%%", m, vol, l, t, status)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
