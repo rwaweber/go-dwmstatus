@@ -21,12 +21,12 @@ func getVolumePerc() int {
 }
 
 func getBatteryPercentage(path string) (perc int, err error) {
-	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_now", path))
+	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_now", path))
 	if err != nil {
 		perc = -1
 		return
 	}
-	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_full", path))
+	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_full", path))
 	if err != nil {
 		perc = -1
 		return
