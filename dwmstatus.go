@@ -12,31 +12,12 @@ import (
 	"net"
 	"strings"
 	"time"
-	"strconv"
 )
 
 var dpy = C.XOpenDisplay(nil)
 
 func getVolumePerc() int {
 	return int(C.get_volume_perc())
-}
-
-func getBatteryPercentage(path string) (perc int, err error) {
-	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_now", path))
-	if err != nil {
-		perc = -1
-		return
-	}
-	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_full", path))
-	if err != nil {
-		perc = -1
-		return
-	}
-	var enow, efull int
-	fmt.Sscanf(string(energy_now), "%d", &enow)
-	fmt.Sscanf(string(energy_full), "%d", &efull)
-	perc = enow * 100 / efull
-	return
 }
 
 func getLoadAverage(file string) (lavg string, err error) {
@@ -111,10 +92,7 @@ func main() {
 	}
 	for {
 		t := time.Now().Format("Mon 02 15:04")
-		b, err := getBatteryPercentage("/sys/class/power_supply/BAT0")
-		if err != nil {
-			log.Println(err)
-		}
+
 		l, err := getLoadAverage("/proc/loadavg")
 		if err != nil {
 			log.Println(err)
@@ -124,16 +102,8 @@ func main() {
 			log.Println(err)
 		}
 		vol := getVolumePerc()
-		status := ""
-		r := strconv.Itoa(b)
-		if b < 20 {
-			// use "warning" color
-			status ="\x03 BAT: " + r
-		} else if b >= 20 {
-			// use "error" color
-			status ="\x02 BAT: " + r
-		}
-		s := formatStatus("%s :: %d%% :: %s :: %s :: %s%%", m, vol, l, t, status)
+
+		s := formatStatus("%s :: %d%% :: %s :: %s%%", m, vol, l, t)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
